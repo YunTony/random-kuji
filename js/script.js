@@ -1,60 +1,91 @@
+let grades = ["A", "B", "C", "D"];
+
+function renderGrades() {
+    const container = document.getElementById("grade-container");
+    const priorityContainer = document.getElementById("priority-container");
+
+    container.innerHTML = "";
+    priorityContainer.innerHTML = "";
+
+    grades.forEach(grade => {
+        container.innerHTML += `
+            <div class="grade-row">
+                <strong>${grade}상</strong>
+
+                <button onclick="decrease('${grade}')">-</button>
+                <input type="number" id="${grade}_count" value="1" min="0">
+                <button onclick="increase('${grade}')">+</button>
+            </div>
+        `;
+
+        priorityContainer.innerHTML += `
+            <label>
+                <input type="checkbox" value="${grade}" checked>
+                ${grade}상
+            </label><br>
+        `;
+    });
+}
+
+function increase(grade) {
+    const input = document.getElementById(`${grade}_count`);
+    input.value = parseInt(input.value || 0) + 1;
+}
+
+function decrease(grade) {
+    const input = document.getElementById(`${grade}_count`);
+    let value = parseInt(input.value || 0);
+    if (value > 0) {
+        input.value = value - 1;
+    }
+}
+
+function addGrade() {
+    const newGrade = prompt("추가할 등급 이름 입력 (예: E)");
+    if (newGrade && !grades.includes(newGrade)) {
+        grades.push(newGrade);
+        renderGrades();
+    }
+}
+
 function analyze() {
 
-    const prizes = {
-        A: { count: parseInt(A_count.value) || 0, value: parseInt(A_value.value) || 0 },
-        B: { count: parseInt(B_count.value) || 0, value: parseInt(B_value.value) || 0 },
-        C: { count: parseInt(C_count.value) || 0, value: parseInt(C_value.value) || 0 },
-        D: { count: parseInt(D_count.value) || 0, value: parseInt(D_value.value) || 0 }
-    };
-
-    const n = parseInt(try_count.value) || 0;
+    const price = parseInt(document.getElementById("price").value) || 0;
+    const n = parseInt(document.getElementById("try_count").value) || 0;
 
     let total = 0;
-    for (let g in prizes) {
-        total += prizes[g].count;
-    }
+    let counts = {};
+
+    grades.forEach(g => {
+        const count = parseInt(document.getElementById(`${g}_count`).value) || 0;
+        counts[g] = count;
+        total += count;
+    });
 
     if (total === 0) {
         output.innerHTML = "남은 티켓이 없습니다.";
         return;
     }
 
-    let EV = 0;
-    let resultHTML = "<b>🎯 1회 당첨 확률</b><br>";
+    const selected = [...document.querySelectorAll("#priority-container input:checked")]
+        .map(cb => cb.value);
 
-    for (let g in prizes) {
-        const p = prizes[g].count / total;
-        resultHTML += `${g}상: ${(p*100).toFixed(2)}%<br>`;
-        EV += p * prizes[g].value;
-    }
+    let priorityTotal = 0;
+    selected.forEach(g => {
+        priorityTotal += counts[g] || 0;
+    });
 
-    const pA = prizes.A.count / total;
-    const atLeastOne = 1 - Math.pow(1 - pA, n);
+    const p = priorityTotal / total;
+    const expectedWins = n * p;
+    const atLeastOne = 1 - Math.pow(1 - p, n);
+    const totalCost = price * n;
 
-    // 시뮬레이션
-    let pool = [];
-    for (let g in prizes) {
-        for (let i = 0; i < prizes[g].count; i++) {
-            pool.push(g);
-        }
-    }
-
-    let simResult = {};
-    let tempPool = [...pool];
-
-    for (let i = 0; i < n && tempPool.length > 0; i++) {
-        const idx = Math.floor(Math.random() * tempPool.length);
-        const draw = tempPool.splice(idx, 1)[0];
-        simResult[draw] = (simResult[draw] || 0) + 1;
-    }
-
-    resultHTML += `<br><b>💰 기대값 (1회 평균 가치)</b>: ${EV.toFixed(0)}원<br>`;
-    resultHTML += `<br><b>🔥 ${n}회 중 A상 1번 이상 확률</b>: ${(atLeastOne*100).toFixed(2)}%<br><br>`;
-
-    resultHTML += "<b>🎲 시뮬레이션 결과</b><br>";
-    for (let g in simResult) {
-        resultHTML += `${g}상 ${simResult[g]}개<br>`;
-    }
-
-    output.innerHTML = resultHTML;
+    output.innerHTML = `
+        🎯 1회 상위상 확률: ${(p*100).toFixed(2)}%<br><br>
+        🔥 ${n}회 플레이 시 상위상 기대 횟수: ${expectedWins.toFixed(2)}개<br><br>
+        💥 ${n}회 중 1번 이상 상위상 확률: ${(atLeastOne*100).toFixed(2)}%<br><br>
+        💰 총 지출 금액: ${totalCost.toLocaleString()}원
+    `;
 }
+
+renderGrades();
