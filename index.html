@@ -9,54 +9,38 @@
 <body>
 
 <header>
-    <div class="header-content">
-        <img src="assets/logo.png" alt="logo" class="logo">
-        <div>
-            <h1>Kuji Strategy Analyzer</h1>
-            <p>확률 · 기대값 · 시뮬레이션 분석기</p>
-        </div>
-    </div>
+    <h1>🎯 Kuji Strategy Analyzer</h1>
 </header>
 
 <main>
 
-<section class="input-section">
-    <h2>등수 정보 입력</h2>
+<section class="card">
+    <h2>기본 정보</h2>
 
-    <div class="grade">
-        <label>A상</label>
-        <input type="number" id="A_count" value="1">
-        <input type="number" id="A_value" value="80000">
-    </div>
+    <label>쿠지 1회 가격</label>
+    <input type="number" id="price" value="8000">
 
-    <div class="grade">
-        <label>B상</label>
-        <input type="number" id="B_count" value="2">
-        <input type="number" id="B_value" value="50000">
-    </div>
-
-    <div class="grade">
-        <label>C상</label>
-        <input type="number" id="C_count" value="3">
-        <input type="number" id="C_value" value="30000">
-    </div>
-
-    <div class="grade">
-        <label>D상</label>
-        <input type="number" id="D_count" value="5">
-        <input type="number" id="D_value" value="10000">
-    </div>
-
-    <div class="try-section">
-        <label>시도 횟수 (n회)</label>
-        <input type="number" id="try_count" value="5">
-    </div>
-
-    <button onclick="analyze()">분석하기</button>
+    <label>N회 플레이</label>
+    <input type="number" id="try_count" value="5">
 </section>
 
-<section class="result-section">
-    <h2>📊 분석 결과</h2>
+<section class="card">
+    <h2>등급 및 남은 개수</h2>
+    <div id="grade-container"></div>
+    <button onclick="addGrade()">+ 등급 추가</button>
+</section>
+
+<section class="card">
+    <h2>상위상 선택</h2>
+    <div id="priority-container"></div>
+</section>
+
+<section class="card">
+    <button class="analyze-btn" onclick="analyze()">📊 분석하기</button>
+</section>
+
+<section class="card">
+    <h2>결과</h2>
     <div id="output">여기에 결과가 표시됩니다.</div>
 </section>
 
